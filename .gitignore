@@ -3,3 +3,4 @@
 /venv
 AUTH_KEYS.py
 /__pycache__
+*.json

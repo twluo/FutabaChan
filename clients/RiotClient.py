@@ -3,6 +3,7 @@ from requests.utils import requote_uri
 from AUTH_KEYS import RIOT_API_KEY
 import copy
 import time
+import json
 
 VERSION_ENDPOINT = "https://ddragon.leagueoflegends.com/realms/na.json"
 SUMMONER_SPELL_ENDPOINT = "http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/summoner.json"
@@ -17,6 +18,13 @@ DEBUG = 1
 RETRY_COUNT = 5
 
 
+def write_to_file(map, filename):
+    dump = json.dumps(map)
+    f = open(filename, "w")
+    f.write(dump)
+    f.close()
+
+
 class RiotClient:
     def __init__(self):
         self.then_time = time.time()
@@ -25,6 +33,10 @@ class RiotClient:
         self.headers = {'X-Riot-Token': RIOT_API_KEY}
         self.summoner_name_map = {}
         self.match_id_map = {}
+        with open('summoner_name_map.json') as json_file:
+            self.summoner_name_map = json.load(json_file)
+        with open('match_id_map.json') as json_file:
+            self.match_id_map = json.load(json_file)
 
     def get_version(self):
         return self.get_request(VERSION_ENDPOINT).json()['v']
@@ -61,6 +73,7 @@ class RiotClient:
             data = data.json()
             data_dict = {'accountId': data['accountId'], 'summonerName': data['name']}
             self.summoner_name_map.update({data['name']: data_dict})
+            write_to_file(self.summoner_name_map, "summoner_name_map.json")
             return data_dict
         return None
 
@@ -97,8 +110,10 @@ class RiotClient:
                 self.summoner_name_map[summoner_name] = data_dict
             else:
                 self.summoner_name_map.update({summoner_name: data_dict})
+                write_to_file(self.summoner_name_map, "summoner_name_map.json")
             participants.append(data_dict)
         self.match_id_map.update({match_id: participants})
+        write_to_file(self.match_id_map, "match_id_map.json")
         return participants
 
     def find_shortest_distance(self, summoner1, summoner2):
