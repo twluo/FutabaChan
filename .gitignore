@@ -2,3 +2,4 @@
 /.idea
 /venv
 AUTH_KEYS.py
+/__pycache__

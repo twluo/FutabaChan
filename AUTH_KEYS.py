@@ -1,4 +1,0 @@
-# API KEYS:
-
-RIOT_API_KEY = ""
-DISCORD_TOKEN = ""
